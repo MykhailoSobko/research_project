@@ -1,0 +1,156 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+
+```{r}
+credits <- read.csv("credit_record.csv")
+head(credits)
+```
+```{r}
+apps <- read.csv("application_record.csv")
+head(apps)
+```
+
+```{r}
+parse_statuses <- function(value) {
+  if (value == "C") {
+    return (-1)
+  }
+  else if (value == "X") {
+    return (-2)
+  }
+  else {
+    return (as.numeric(value))
+  }
+}
+```
+
+```{r}
+parse_gender <- function(value) {
+  if (value == "F") {
+    return (0)
+  } else {
+    return (1)
+  }
+}
+```
+
+```{r}
+parse_education <- function(value) {
+  if (value == "Secondary / secondary special") {
+    return (0)
+  }
+  else if (value == "Higher education") {
+    return (1)
+  }
+  else {
+    return (-1)
+  }
+}
+```
+
+```{r}
+parse_family_status <- function(value) {
+  if (value == "Married") {
+    return (0)
+  }
+  else if (value == "Single / not married") {
+    return (1)
+  }
+  else {
+    return (-1)
+  }
+}
+```
+
+
+```{r}
+merged <- merge(credits, apps, by = "ID")
+data   <- select(merged, CNT_CHILDREN, AMT_INCOME_TOTAL, CNT_FAM_MEMBERS)
+
+data$NUMERIC_LOANS  <- sapply(merged$STATUS, FUN=parse_statuses)
+data$NUMERIC_GENDER <- sapply(merged$CODE_GENDER, FUN=parse_gender)
+data$NUMERIC_EDU    <- sapply(merged$NAME_EDUCATION_TYPE, FUN=parse_education)
+data$NUMERIC_FAMILY <- sapply(merged$NAME_FAMILY_STATUS, FUN=parse_family_status)
+
+data$has_loan <- data$NUMERIC_LOANS != -2
+
+ggplot(data = data, aes(x = NUMERIC_LOANS)) +
+  geom_histogram(binwidth = 1, fill = "#D6B8B7", color = "white")
+
+head(data)
+```
+
+```{r}
+ggplot(data, aes(x = NUMERIC_GENDER, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 0.5, color = "white") +
+  xlim(NA, 1.5) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among genders") +
+  xlab(label = "Gender")
+
+# 0 = woman
+# 1 = men
+
+# to display observations: geom_rug()
+```
+
+```{r}
+ggplot(data, aes(x = CNT_CHILDREN, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 1, color="white") +
+  xlim(NA, 4) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among people with n children") +
+  xlab(label = "Gender")
+```
+
+```{r}
+ggplot(data, aes(x = AMT_INCOME_TOTAL, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 15000, color = "white") +
+  xlim(NA, 500000) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among people with n income") +
+  xlab(label = "Annual income")
+```
+
+```{r}
+ggplot(data, aes(x = NUMERIC_EDU, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 0.5, color = "white") +
+  xlim(NA, 2) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among people with a certain education degree") +
+  xlab(label = "Education type")
+```
+
+```{r}
+ggplot(data, aes(x = NUMERIC_FAMILY, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 0.5, color = "white") +
+  xlim(NA, 2) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among people with a certain family status") +
+  xlab(label = "Marital status")
+```
+
+```{r}
+ggplot(data, aes(x = CNT_FAM_MEMBERS, fill = factor(has_loan))) +
+  geom_histogram(binwidth = 1, color = "white") +
+  xlim(NA, 6) +
+  scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
+                    labels = c("has no loan", "at least one loan")) +
+  ggtitle("Loans distribution among people with a certain family status") +
+  xlab(label = "Marital status")
+```
