@@ -112,7 +112,7 @@ ggplot(data, aes(x = CNT_CHILDREN, fill = factor(has_loan))) +
   scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
                     labels = c("has no loan", "at least one loan")) +
   ggtitle("Loans distribution among people with n children") +
-  xlab(label = "Gender")
+  xlab(label = "Number of children")
 ```
 
 ```{r}
@@ -151,6 +151,6 @@ ggplot(data, aes(x = CNT_FAM_MEMBERS, fill = factor(has_loan))) +
   xlim(NA, 6) +
   scale_fill_manual(name = "loans factor", values = c("#B5B2BA", "#D6B8B7"),
                     labels = c("has no loan", "at least one loan")) +
-  ggtitle("Loans distribution among people with a certain family status") +
-  xlab(label = "Marital status")
+  ggtitle("Loans distribution among people with n family members") +
+  xlab(label = "Number of family members")
 ```
