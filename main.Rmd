@@ -169,6 +169,7 @@ ggplot(data, aes(x = CNT_FAM_MEMBERS, fill = factor(has_loan))) +
                     labels = c("has no loan", "at least one loan")) +
   ggtitle("Loans distribution among people with n family members") +
   xlab(label = "Number of family members")
+<<<<<<< HEAD
 ```
 
 ##### Hypothesis testing
@@ -267,4 +268,67 @@ qqPlot(data$AMT_INCOME_TOTAL, "norm",  pch="*", col=LIGHT_PURPLE, col.lines=DARK
 qqPlot(data$AMT_INCOME_TOTAL, "lnorm", pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
 qqPlot(data$AMT_INCOME_TOTAL, "exp",   pch="*", col=LIGHT_PINK,   col.lines=DARK_PURPLE)
 qqPlot(data$AMT_INCOME_TOTAL, "unif",  pch="*", col=LIGHT_PINK,   col.lines=DARK_PURPLE)
+=======
+>>>>>>> bf91ef51d5b71d6c5aa2c4e421968805ff27dbad
+```
+
+##### Hypothesis testing
+
+$H_0$ - The client’s gender is independent of taking a loan  
+$H_1$ - There is a dependence between client's gender and taking a loan
+
+```{r}
+test_data <- table(data$NUMERIC_GENDER, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+```
+
+$H_0$ - The number of client’s children is independent of taking a loan  
+$H_1$ - There is a dependence between a client having children and taking a loan
+
+```{r}
+test_data <- table(data$CNT_CHILDREN, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+fisher.test(test_data)
+```
+
+$H_0$ - The amount of client’s income is independent of taking a loan  
+$H_1$ - There is a dependence between a client's income and taking a loan
+
+```{r}
+test_data <- table(data$AMT_INCOME_TOTAL, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+fisher.test(test_data)
+```
+
+$H_0$ - The client’s education is independent of taking a loan  
+$H_1$ - There is a dependence between a client's education and taking a loan
+
+```{r}
+test_data <- table(data$NUMERIC_EDU, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+fisher.test(test_data)
+```
+
+$H_0$ - The client’s marital status is independent of taking a loan  
+$H_1$ - There is a dependence between a client's marital status and taking a loan
+
+```{r}
+test_data <- table(data$NUMERIC_FAMILY, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+fisher.test(test_data)
+```
+
+$H_0$ - The number of client’s family members is independent of taking a loan  
+$H_1$ - There is a dependence between a number of client's family members and taking a loan
+
+```{r}
+test_data <- table(data$CNT_FAM_MEMBERS, data$NUMERIC_LOANS)
+head(test_data)
+chisq.test(test_data)
+fisher.test(test_data)
 ```
