@@ -11,6 +11,7 @@ library(dplyr)
 library(car)
 library(moments)
 library(tseries)
+library(fitdistrplus)
 ```
 
 ```{r}
@@ -27,6 +28,7 @@ DARK_PURPLE  = "#9B97A2"
 credits <- read.csv("credit_record.csv")
 head(credits)
 ```
+
 ```{r}
 apps <- read.csv("application_record.csv")
 head(apps)
@@ -87,7 +89,7 @@ parse_family_status <- function(value) {
 
 ```{r}
 merged <- merge(credits, apps, by = "ID")
-data   <- select(merged, CNT_CHILDREN, AMT_INCOME_TOTAL, CNT_FAM_MEMBERS)
+data   <- dplyr::select(merged, CNT_CHILDREN, AMT_INCOME_TOTAL, CNT_FAM_MEMBERS)
 
 data$NUMERIC_LOANS  <- sapply(merged$STATUS, FUN=parse_statuses)
 data$NUMERIC_GENDER <- sapply(merged$CODE_GENDER, FUN=parse_gender)
@@ -169,7 +171,6 @@ ggplot(data, aes(x = CNT_FAM_MEMBERS, fill = factor(has_loan))) +
                     labels = c("has no loan", "at least one loan")) +
   ggtitle("Loans distribution among people with n family members") +
   xlab(label = "Number of family members")
-<<<<<<< HEAD
 ```
 
 ##### Hypothesis testing
@@ -178,8 +179,10 @@ $H_0$ - The client’s gender is independent of taking a loan
 $H_1$ - There is a dependence between client's gender and taking a loan
 
 ```{r}
-test_data <- table(data$NUMERIC_GENDER, data$NUMERIC_LOANS)
+test_data <- table(data$NUMERIC_GENDER, data$has_loan)
 head(test_data)
+
+fisher.test(test_data, simulate.p.value=TRUE)
 chisq.test(test_data)
 ```
 
@@ -187,148 +190,138 @@ $H_0$ - The number of client’s children is independent of taking a loan
 $H_1$ - There is a dependence between a client having children and taking a loan
 
 ```{r}
-test_data <- table(data$CNT_CHILDREN, data$NUMERIC_LOANS)
-head(test_data)
+test_data <- table(data$CNT_CHILDREN, data$has_loan)[1:6,]
+test_data
+
+fisher.test(test_data, simulate.p.value=TRUE)
 chisq.test(test_data)
-#fisher.test(test_data)
 ```
 
 $H_0$ - The amount of client’s income is independent of taking a loan  
 $H_1$ - There is a dependence between a client's income and taking a loan
 
 ```{r}
-test_data <- table(data$AMT_INCOME_TOTAL, data$NUMERIC_LOANS)
-head(test_data)
+test_data <- table(data$AMT_INCOME_TOTAL, data$has_loan)
+test_data
+
+fisher.test(test_data, simulate.p.value=TRUE)
 chisq.test(test_data)
-#fisher.test(test_data)
 ```
 
 $H_0$ - The client’s education is independent of taking a loan  
 $H_1$ - There is a dependence between a client's education and taking a loan
 
 ```{r}
-test_data <- table(data$NUMERIC_EDU, data$NUMERIC_LOANS)
-head(test_data)
+test_data <- table(data$NUMERIC_EDU, data$has_loan)
+test_data
+
 chisq.test(test_data)
-#fisher.test(test_data)
+fisher.test(test_data, simulate.p.value = TRUE)
 ```
 
 $H_0$ - The client’s marital status is independent of taking a loan  
 $H_1$ - There is a dependence between a client's marital status and taking a loan
 
 ```{r}
-test_data <- table(data$NUMERIC_FAMILY, data$NUMERIC_LOANS)
-head(test_data)
+test_data <- table(data$NUMERIC_FAMILY, data$has_loan)
+test_data
+
 chisq.test(test_data)
-#fisher.test(test_data)
+fisher.test(test_data, simulate.p.value = TRUE)
 ```
 
 $H_0$ - The number of client’s family members is independent of taking a loan  
 $H_1$ - There is a dependence between a number of client's family members and taking a loan
 
 ```{r}
-test_data <- table(data$CNT_FAM_MEMBERS, data$NUMERIC_LOANS)
-head(test_data)
+test_data <- table(data$CNT_FAM_MEMBERS, data$has_loan)[1:7,]
+test_data
+
 chisq.test(test_data)
-#fisher.test(test_data)
+fisher.test(test_data, simulate.p.value = TRUE)
 ```
 
 
 ##### Distributions comparisons
 
 ```{r}
+par(mfrow=c(1,2))
+
 ggplot(data, aes(x = AMT_INCOME_TOTAL, fill = factor(TRUE))) +
   xlim(NA, 750000) +
   geom_density(alpha = 0.7, adjust = 1.5, col = LIGHT_PINK) +
   geom_density(alpha = 0.3, adjust = 10,  col = DARK_PINK) +
   scale_fill_manual(values = LIGHT_PINK) +
   xlab(label = "Annual income") +
-  ggtitle("Scaled annual income distribution")
+  ggtitle("Empirical density of the annual income distribution")
+
+ggplot(data, aes(x = NUMERIC_LOANS, fill = factor(TRUE))) +
+  geom_density(alpha = 0.7, adjust = 1.5, col = LIGHT_PURPLE) +
+  geom_density(alpha = 0.3, adjust = 5,   col = DARK_PURPLE) +
+  scale_fill_manual(values = LIGHT_PURPLE) +
+  xlab(label = "Loan status") +
+  ggtitle("Empirical density of the loans distribution")
+```
+
+```{r}
+par(mfrow=c(1,2))
+
+ggplot(data, aes(AMT_INCOME_TOTAL)) +
+  stat_ecdf(geom = "step", color = LIGHT_PINK, lwd = 0.8, alpha = 0.8) +
+  stat_ecdf(geom = "point", color = DARK_PINK, lwd = 1) +
+  xlim(NA, 750000) +
+  xlab(label = "Annual income") +
+  ggtitle("Empirical CDF of the annual incomes")
+
+ggplot(data, aes(NUMERIC_LOANS)) +
+  stat_ecdf(geom = "step", color = LIGHT_PURPLE, lwd = 0.8, alpha = 0.8) +
+  stat_ecdf(geom = "point", color = DARK_PURPLE, lwd = 1) +
+  xlab(label = "Loan status") +
+  ggtitle("Empirical CDF of the loan statuses")
 ```
 
 ```{r}
 skewness(data$AMT_INCOME_TOTAL)
 kurtosis(data$AMT_INCOME_TOTAL)
+
+skewness(data$NUMERIC_LOANS)
+kurtosis(data$NUMERIC_LOANS)
 ```
 
 ```{r}
 jarque.bera.test(data$AMT_INCOME_TOTAL)
+# not normal
+
+jarque.bera.test(data$NUMERIC_LOANS)
+# not normal
 ```
 
 ```{r}
-qqnorm(data$AMT_INCOME_TOTAL, main="QQ plot of normal data", pch="O", col=LIGHT_PURPLE)
+qqnorm(data$AMT_INCOME_TOTAL, main="QQ plot of normal data for annual income distribution", pch="O", col=LIGHT_PINK)
 qqline(data$AMT_INCOME_TOTAL, lty=1, lwd=3, col="white")
-qqline(data$AMT_INCOME_TOTAL, lty=2, lwd=3, col=LIGHT_PINK)
+qqline(data$AMT_INCOME_TOTAL, lty=2, lwd=3, col=LIGHT_PURPLE)
+```
+
+```{r}
+qqnorm(data$NUMERIC_LOANS, main="QQ plot of normal data for loans distribution", pch="O", col=LIGHT_PURPLE)
+qqline(data$NUMERIC_LOANS, lty=1, lwd=3, col="white")
+qqline(data$NUMERIC_LOANS, lty=2, lwd=3, col=LIGHT_PINK)
 ```
 
 ```{r}
 par(mfrow=c(2,2))
 
-qqPlot(data$AMT_INCOME_TOTAL, "norm",  pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
-qqPlot(data$AMT_INCOME_TOTAL, "lnorm", pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
-qqPlot(data$AMT_INCOME_TOTAL, "exp",   pch="*", col=LIGHT_PINK,   col.lines=DARK_PURPLE)
-qqPlot(data$AMT_INCOME_TOTAL, "unif",  pch="*", col=LIGHT_PINK,   col.lines=DARK_PURPLE)
-=======
->>>>>>> bf91ef51d5b71d6c5aa2c4e421968805ff27dbad
+qqPlot(data$AMT_INCOME_TOTAL, "norm",  pch="*", col=LIGHT_PINK, col.lines=DARK_PURPLE)
+qqPlot(data$AMT_INCOME_TOTAL, "lnorm", pch="*", col=LIGHT_PINK, col.lines=DARK_PURPLE)
+qqPlot(data$AMT_INCOME_TOTAL, "exp",   pch="*", col=LIGHT_PINK, col.lines=DARK_PURPLE)
+qqPlot(data$AMT_INCOME_TOTAL, "unif",  pch="*", col=LIGHT_PINK, col.lines=DARK_PURPLE)
 ```
 
-##### Hypothesis testing
-
-$H_0$ - The client’s gender is independent of taking a loan  
-$H_1$ - There is a dependence between client's gender and taking a loan
-
 ```{r}
-test_data <- table(data$NUMERIC_GENDER, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-```
+par(mfrow=c(2,2))
 
-$H_0$ - The number of client’s children is independent of taking a loan  
-$H_1$ - There is a dependence between a client having children and taking a loan
-
-```{r}
-test_data <- table(data$CNT_CHILDREN, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-fisher.test(test_data)
-```
-
-$H_0$ - The amount of client’s income is independent of taking a loan  
-$H_1$ - There is a dependence between a client's income and taking a loan
-
-```{r}
-test_data <- table(data$AMT_INCOME_TOTAL, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-fisher.test(test_data)
-```
-
-$H_0$ - The client’s education is independent of taking a loan  
-$H_1$ - There is a dependence between a client's education and taking a loan
-
-```{r}
-test_data <- table(data$NUMERIC_EDU, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-fisher.test(test_data)
-```
-
-$H_0$ - The client’s marital status is independent of taking a loan  
-$H_1$ - There is a dependence between a client's marital status and taking a loan
-
-```{r}
-test_data <- table(data$NUMERIC_FAMILY, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-fisher.test(test_data)
-```
-
-$H_0$ - The number of client’s family members is independent of taking a loan  
-$H_1$ - There is a dependence between a number of client's family members and taking a loan
-
-```{r}
-test_data <- table(data$CNT_FAM_MEMBERS, data$NUMERIC_LOANS)
-head(test_data)
-chisq.test(test_data)
-fisher.test(test_data)
+qqPlot(data$NUMERIC_LOANS, "norm",  pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
+qqPlot(data$NUMERIC_LOANS, "lnorm", pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
+qqPlot(data$NUMERIC_LOANS, "exp",   pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
+qqPlot(data$NUMERIC_LOANS, "unif",  pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
 ```
