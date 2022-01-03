@@ -164,6 +164,13 @@ $H_1$ - There is a dependence between client's gender and taking a loan
 test_data <- table(data$NUMERIC_GENDER, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
+summary(test_data)
+
+
+test_data <- table(data$NUMERIC_GENDER, data$has_loan)
+chisq.test(test_data)
+fisher.test(test_data)
+summary(test_data)
 ```
 
 $H_0$ - The number of client’s children is independent of taking a loan  
@@ -173,7 +180,12 @@ $H_1$ - There is a dependence between a client having children and taking a loan
 test_data <- table(data$CNT_CHILDREN, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
-fisher.test(test_data)
+summary(test_data)
+
+
+test_data <- table(data$CNT_CHILDREN, data$has_loan)
+chisq.test(test_data)
+summary(test_data)
 ```
 
 $H_0$ - The amount of client’s income is independent of taking a loan  
@@ -183,7 +195,12 @@ $H_1$ - There is a dependence between a client's income and taking a loan
 test_data <- table(data$AMT_INCOME_TOTAL, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
-fisher.test(test_data)
+summary(test_data)
+
+
+test_data <- table(data$AMT_INCOME_TOTAL, data$has_loan)
+chisq.test(test_data)
+summary(test_data)
 ```
 
 $H_0$ - The client’s education is independent of taking a loan  
@@ -193,7 +210,12 @@ $H_1$ - There is a dependence between a client's education and taking a loan
 test_data <- table(data$NUMERIC_EDU, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
-fisher.test(test_data)
+summary(test_data)
+
+
+test_data <- table(data$NUMERIC_EDU, data$has_loan)
+chisq.test(test_data)
+summary(test_data)
 ```
 
 $H_0$ - The client’s marital status is independent of taking a loan  
@@ -203,7 +225,12 @@ $H_1$ - There is a dependence between a client's marital status and taking a loa
 test_data <- table(data$NUMERIC_FAMILY, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
-fisher.test(test_data)
+summary(test_data)
+
+
+test_data <- table(data$NUMERIC_FAMILY, data$has_loan)
+chisq.test(test_data)
+summary(test_data)
 ```
 
 $H_0$ - The number of client’s family members is independent of taking a loan  
@@ -213,5 +240,9 @@ $H_1$ - There is a dependence between a number of client's family members and ta
 test_data <- table(data$CNT_FAM_MEMBERS, data$NUMERIC_LOANS)
 head(test_data)
 chisq.test(test_data)
-fisher.test(test_data)
-```
+summary(test_data)
+
+
+test_data <- table(data$CNT_FAM_MEMBERS, data$has_loan)
+chisq.test(test_data)
+summary(test_data)```
