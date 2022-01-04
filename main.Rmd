@@ -1,9 +1,9 @@
 ---
 title: "R Notebook"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r}
@@ -389,6 +389,6 @@ qqPlot(data$NUMERIC_LOANS, "norm",  pch="*", col=LIGHT_PURPLE, col.lines=DARK_PI
 qqPlot(data$NUMERIC_LOANS, "lnorm", pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
 qqPlot(data$NUMERIC_LOANS, "exp",   pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
 qqPlot(data$NUMERIC_LOANS, "unif",  pch="*", col=LIGHT_PURPLE, col.lines=DARK_PINK)
-``````
+```
 
 As we can see, the distributions of the total annual income and the loans are not following any of the tested distributions, such as: normal, log-normal, exponential or uniform. 
